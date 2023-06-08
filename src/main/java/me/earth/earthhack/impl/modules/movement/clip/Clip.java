@@ -8,7 +8,6 @@ import me.earth.earthhack.api.setting.settings.EnumSetting;
 import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.misc.UpdateEvent;
 import me.earth.earthhack.impl.event.listeners.LambdaListener;
-import me.earth.earthhack.impl.modules.misc.logger.Logger;
 import me.earth.earthhack.impl.util.minecraft.MovementUtil;
 import me.earth.earthhack.impl.util.network.NetworkUtil;
 import net.minecraft.util.math.BlockPos;
@@ -31,18 +30,24 @@ public class Clip extends Module {
     protected final Setting<Integer> updates =
             register(new NumberSetting<>("Updates", 10, 1, 30));
 
-
     public BlockPos pos;
-    int disableTime = 0;
+
+    public static double roundToClosest(double num, double low, double high) {
+        double d2 = high - num;
+        double d1 = num - low;
+        if (d2 > d1) {
+            return low;
+        }
+        return high;
+    }
+
+    int disabletime = 0;
 
     public Clip()
     {
         super("Clip", Category.Movement);
         this.setData(new ClipData(this));
         this.listeners.add(new LambdaListener<>(UpdateEvent.class, e -> {
-            if (mc.world == null || mc.player == null) {
-                return;
-            }
             if (!MovementUtil.noMovementKeys()) {
                 disable();
                 return;
@@ -50,18 +55,20 @@ public class Clip extends Module {
             switch (mode.getValue()) {
 
                 case AutoCenter:
-                    try
-                    {
-                        Vec3d setCenter = new Vec3d(pos.getX() + 0.5, mc.player.posY, pos.getZ() + 0.5);
+                    Vec3d setCenter = new Vec3d(pos.getX() + 0.5, mc.player.posY, pos.getZ() + 0.5);
 
-                        mc.player.motionX = 0;
-                        mc.player.motionZ = 0;
+                    mc.player.motionX = 0;
+                    mc.player.motionZ = 0;
 
-                        NetworkUtil.send(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
-                        mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
-                    } catch (Exception e2) {
-                        System.out.println(2);
-                    }
+                    NetworkUtil.send(new CPacketPlayer.Position(setCenter.x, setCenter.y, setCenter.z, true));
+                    mc.player.setPosition(setCenter.x, setCenter.y, setCenter.z);
+
+                    if (disable.getValue())
+                        if (disabletime >= updates.getValue()) {
+                            disable();
+                        }
+                    disabletime++;
+
                     break;
 
                 case Corner:
@@ -73,34 +80,22 @@ public class Clip extends Module {
                         NetworkUtil.send(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, true));
                         NetworkUtil.send(new CPacketPlayer.Position(roundToClosest(mc.player.posX, Math.floor(mc.player.posX) + 0.23, Math.floor(mc.player.posX) + 0.77), mc.player.posY, roundToClosest(mc.player.posZ, Math.floor(mc.player.posZ) + 0.23, Math.floor(mc.player.posZ) + 0.77), true));
                     }
-                    break;
+                    if (disable.getValue()) {
+                        if (disabletime >= updates.getValue()) {
+                            disable();
+                        }
+                        disabletime++;
 
-                case FiveB:
-                    NetworkUtil.send(new CPacketPlayer.Position(mc.player.posX,mc.player.posY - 0.0042123,mc.player.posZ,mc.player.onGround));
-                    NetworkUtil.send(new CPacketPlayer.Position(mc.player.posX,mc.player.posY - 0.02141,mc.player.posZ,mc.player.onGround));
-                    NetworkUtil.send(new CPacketPlayer.PositionRotation(mc.player.posX,mc.player.posY - 0.097421,mc.player.posZ,500,500,mc.player.onGround));
-                    // https://github.com/WMSGaming/Abstract-1.12.2/blob/master/src/main/java/com/wms/abstractclient/module/modules/exploit/CornerClip.java
-                    break;
-            }
-
-            disableTime++;
-            if (disable.getValue()) {
-                if (disableTime >= updates.getValue()) {
-                    disable();
-                }
+                        break;
+                    }
             }
         }));
     }
 
-    public static double roundToClosest(double num, double low, double high) {
-        double d2 = high - num;
-        double d1 = num - low;
-        return (d2 > d1 ? low : high);
-    }
-    
+
     @Override
     protected void onDisable()
     {
-        disableTime = 0;
+        disabletime = 0;
     }
 }

@@ -34,6 +34,8 @@ import java.util.Set;
 
 public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
 {
+    // This code is not made by 'nukiz' but instead someone else. They deserve all the credit for this code.
+
     protected static final PotionType SPECTRAL = new PotionType();
     /** PotionTypes that don't give lasting Effects */
     protected static final Set<PotionType> BAD_TYPES = Sets.newHashSet(
@@ -94,7 +96,7 @@ public class Quiver extends RegisteringModule<Boolean, SimpleRemovingSetting>
         this.listeners.add(new ListenerUseItem(this));
         this.listeners.add(new ListenerKeyboard(this));
         ModuleData<?> data = new SimpleData(this,
-                "Shoot yourself with arrows. Not compatible with AntiPotion.");
+                "Cycles through your arrows. Not compatible with AntiPotion.");
         this.setData(data);
     }
 

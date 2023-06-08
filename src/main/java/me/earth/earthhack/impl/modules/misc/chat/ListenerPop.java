@@ -26,7 +26,8 @@ final class ListenerPop extends ModuleListener<Chat, TotemPopEvent> {
             && module.sent.add(event.getEntity().getName()))
         {
             String name = event.getEntity().getName();
-            player.connection.sendPacket(new CPacketChatMessage("/msg " + name + " " + Chat.LAG_MESSAGE));
+            player.connection.sendPacket(new CPacketChatMessage(
+                "/msg " + name + " " + Chat.LAG_MESSAGE));
             module.popLagTimer.reset();
         }
     }

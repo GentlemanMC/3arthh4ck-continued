@@ -1,11 +1,8 @@
 package me.earth.earthhack.impl.modules.render.logoutspots;
 
-import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.impl.event.events.network.ConnectionEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.modules.Caches;
-import me.earth.earthhack.impl.modules.combat.autotrap.AutoTrap;
 import me.earth.earthhack.impl.modules.render.logoutspots.mode.MessageMode;
 import me.earth.earthhack.impl.modules.render.logoutspots.util.LogoutSpot;
 import me.earth.earthhack.impl.util.math.MathUtil;
@@ -20,20 +17,11 @@ final class ListenerLeave extends ModuleListener<LogoutSpots, ConnectionEvent.Le
         super(module, ConnectionEvent.Leave.class);
     }
 
-    private static final ModuleCache<AutoTrap> AUTO_TRAP =
-            Caches.getModule(AutoTrap.class);
+    EntityPlayer player;
     @Override
     public void invoke(ConnectionEvent.Leave event)
     {
-        if (event.getName() == mc.player.getName())
-            return;
-
-        if(AUTO_TRAP.get().logOutSpot.getValue())
-            if(AUTO_TRAP.get().isValid(event.getPlayer()))
-                AUTO_TRAP.get().target = event.getPlayer();
-
-
-        EntityPlayer player = event.getPlayer();
+        player = event.getPlayer();
         if (module.message.getValue() != MessageMode.None)
         {
             String text = null;

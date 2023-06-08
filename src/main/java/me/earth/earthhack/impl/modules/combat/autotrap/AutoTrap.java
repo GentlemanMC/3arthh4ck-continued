@@ -1,5 +1,6 @@
 package me.earth.earthhack.impl.modules.combat.autotrap;
 
+import me.earth.earthhack.api.cache.ModuleCache;
 import me.earth.earthhack.api.event.events.Stage;
 import me.earth.earthhack.api.module.util.Category;
 import me.earth.earthhack.api.setting.Setting;
@@ -9,8 +10,11 @@ import me.earth.earthhack.api.setting.settings.NumberSetting;
 import me.earth.earthhack.impl.event.events.network.MotionUpdateEvent;
 import me.earth.earthhack.impl.event.events.network.PacketEvent;
 import me.earth.earthhack.impl.managers.Managers;
+import me.earth.earthhack.impl.modules.Caches;
 import me.earth.earthhack.impl.modules.combat.autotrap.modes.TrapTarget;
 import me.earth.earthhack.impl.modules.combat.autotrap.util.Trap;
+import me.earth.earthhack.impl.modules.render.logoutspots.LogoutSpots;
+import me.earth.earthhack.impl.modules.render.logoutspots.util.LogoutSpot;
 import me.earth.earthhack.impl.util.helpers.blocks.ObbyListenerModule;
 import me.earth.earthhack.impl.util.helpers.blocks.modes.Rotate;
 import me.earth.earthhack.impl.util.helpers.blocks.util.TargetResult;
@@ -49,7 +53,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
             register(new NumberSetting<>("Range", 6.0f, 0.0f, 6.0f));
     protected final Setting<Boolean> noScaffold    =
             register(new BooleanSetting("NoScaffold", false));
-    protected final Setting<Boolean> top               =
+protected final Setting<Boolean> top               =
             register(new BooleanSetting("Top", true));
     protected final Setting<Boolean> noStep        =
             register(new BooleanSetting("NoStep", false));
@@ -65,8 +69,9 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
             register(new NumberSetting<>("Extend", 2, 1, 3));
     protected final Setting<TrapTarget> targetMode =
             register(new EnumSetting<>("Target", TrapTarget.Closest));
-    public final Setting<Boolean> logOutSpot      =
+    protected final Setting<Boolean> logOutSpot      =
             register(new BooleanSetting("TrapLogouts", false));
+    // TODO: TrapLogouts: trap in a way where feet are exposed, so if the player re-logs in the trap their feet are exposed and likely caught off-guard
     protected final Setting<Float> speed           =
             register(new NumberSetting<>("Speed", 19.0f, 0.0f, 50.0f));
     protected final Setting<Boolean> freeCam       =
@@ -91,8 +96,10 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
     protected final Map<EntityPlayer, List<BlockPos>> cached = new HashMap<>();
     public final Map<BlockPos, Long> blackList = new ConcurrentHashMap<>();
     /** The current target */
-    public EntityPlayer target;
+    protected EntityPlayer target;
 
+    private static final ModuleCache<LogoutSpots> LOGOUTSPOTS =
+            Caches.getModule(LogoutSpots.class);
     public AutoTrap()
     {
         super("AutoTrap", Category.Combat);
@@ -181,6 +188,12 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
             newTrapping = getPositions(newTarget);
         }
 
+        if(logOutSpot.getValue() && LOGOUTSPOTS.isEnabled()) {
+            for(LogoutSpot spot : LOGOUTSPOTS.get().getSpots().values())
+            {
+                newTrapping = getPositions(spot.getModel().getPlayer());
+            }
+        }
         return result.setTargets(newTrapping);
     }
 
@@ -218,7 +231,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
      * @param player the player to check.
      * @return if the given player can be trapped.
      */
-    public boolean isValid(EntityPlayer player)
+    private boolean isValid(EntityPlayer player)
     {
         if (player != null
                 && !EntityUtil.isDead(player)
@@ -375,7 +388,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
         // sort so we start placing behind (furthest away) first.
         positions.sort(Comparator.comparingDouble(pos ->
                 -BlockUtil.getDistanceSq(pos)));
-        // sort by y, so we start placing from bottom up.
+        // sort by y so we start placing from bottom up.
         positions.sort(Comparator.comparingInt(Vec3i::getY));
 
         return positions.stream().filter(pos ->
@@ -466,7 +479,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
                 positions.addAll(applyOffsets(pos, Trap.OFFSETS, positions)));
         }
 
-        // Only apply these if we don't need to extend, otherwise overkill
+        // Only apply these if we dont need to extend, otherwise overkill
         if (blockedIn.size() == 1 || bigExtend.getValue())
         {
             if (scaffold)
@@ -536,7 +549,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
         for (BlockPos pos : positions)
         {
             BlockPos up = pos.up();
-            //TODO: Sort facings so that we don't block piston aura
+            //TODO: Sort facings so that we dont block piston aura
             for (EnumFacing facing : TOP_FACINGS)
             {
                 BlockPos helping = up.offset(facing);
@@ -644,7 +657,7 @@ public class AutoTrap extends ObbyListenerModule<ListenerAutoTrap>
 
     /**
      * Applies the given offsets to the position and
-     * returns a list that doesn't contain any positions
+     * returns a list that doesnt contain any positions
      * already contained by alreadyAdded.
      *
      * @param pos the pos to apply the offsets to.

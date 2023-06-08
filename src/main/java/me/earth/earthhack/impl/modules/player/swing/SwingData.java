@@ -20,11 +20,11 @@ final class SwingData extends DefaultData<Swing> {
 
     @Override
     public int getColor() {
-        return 0xffffffff;
+        return 0xffaa001D;
     }
 
     @Override
     public String getDescription() {
-        return "Change your hand swing speed.";
+        return "Modifies how swinging hands work.";
     }
 }

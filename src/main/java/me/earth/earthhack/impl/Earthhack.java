@@ -6,9 +6,7 @@ import me.earth.earthhack.impl.managers.Managers;
 import me.earth.earthhack.impl.managers.thread.GlobalExecutor;
 import me.earth.earthhack.impl.modules.client.commands.Commands;
 import me.earth.earthhack.impl.util.math.geocache.Sphere;
-import me.earth.earthhack.impl.util.render.Icon;
 import me.earth.earthhack.impl.util.render.SplashScreenHelper;
-import net.minecraft.client.Minecraft;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
@@ -24,9 +22,9 @@ public class Earthhack implements Globals
         GlobalExecutor.EXECUTOR.submit(() -> Sphere.cacheSphere(LOGGER));
     }
 
-    public static void init() {
-        // LOGGER.info("\n                  ..----.._    _              \n                .' .--.    '-.(O)_            \n    '-.__.-'''=:|  ,  _)_ |__ . c'-..        \n                 ''------'---''---'-'         ");
-        LOGGER.info("\n\nInitializing 3arthh4ck.\n");
+    public static void init()
+    {
+        LOGGER.info("\n\nInitializing 3arthh4ck.");
         SplashScreenHelper.setSplashScreen("Initializing 3arthh4ck", 7);
         Display.setTitle(NAME + " - " + VERSION);
         Managers.load();
@@ -37,7 +35,6 @@ public class Earthhack implements Globals
 
     public static void postInit()
     {
-        Icon.setIcon();
         // For Plugins if they need it.
     }
     
@@ -50,7 +47,5 @@ public class Earthhack implements Globals
     {
         return ((IMinecraft) mc).isEarthhackRunning();
     }
-
-    public static final int STARTING_FPS = Minecraft.getMinecraft().gameSettings.limitFramerate;
 
 }

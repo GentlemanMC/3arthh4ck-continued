@@ -7,6 +7,7 @@ package me.earth.earthhack.impl.modules.render.crosshair.mode;
 
 public enum GapMode
 {
-    Normal,
-    Dynamic
+    NONE,
+    NORMAL,
+    DYNAMIC
 }

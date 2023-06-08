@@ -4,6 +4,5 @@ public enum OffsetMode
 {
     Constant,
     Smart,
-    Bypass,
-    SmartNew
+    Bypass
 }

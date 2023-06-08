@@ -2,8 +2,6 @@ package me.earth.earthhack.impl.commands;
 
 import me.earth.earthhack.api.command.Command;
 import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.text.ChatIDs;
-import me.earth.earthhack.impl.util.text.ChatUtil;
 
 public class ReloadResourceCommand extends Command
 {
@@ -16,7 +14,6 @@ public class ReloadResourceCommand extends Command
     public void execute(String[] args)
     {
         Managers.FILES.init();
-        Managers.CHAT.sendDeleteMessage("Reloaded resources", "", ChatIDs.COMMAND);
     }
 
 }

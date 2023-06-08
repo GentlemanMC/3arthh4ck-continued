@@ -13,6 +13,7 @@ public class SkinBlink extends Module
             register(new NumberSetting<>("Delay", 1000, 0, 2000));
     protected final Setting<Boolean> random =
             register(new BooleanSetting("Random", false));
+
     protected final StopWatch timer = new StopWatch();
 
     public SkinBlink()

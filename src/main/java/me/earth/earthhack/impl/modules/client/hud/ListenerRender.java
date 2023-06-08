@@ -2,8 +2,6 @@ package me.earth.earthhack.impl.modules.client.hud;
 
 import me.earth.earthhack.impl.event.events.render.Render2DEvent;
 import me.earth.earthhack.impl.event.listeners.ModuleListener;
-import me.earth.earthhack.impl.managers.Managers;
-import me.earth.earthhack.impl.util.text.ChatIDs;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 
@@ -14,7 +12,6 @@ final class ListenerRender extends ModuleListener<HUD, Render2DEvent> {
 
     @Override
     public void invoke(Render2DEvent event) {
-        module.renderImage();
         GL11.glPushMatrix();
         GL11.glColor4f(1.0f,1.0f,1.0f,1.0f);
         if (module.animations.getValue()) {
@@ -44,17 +41,9 @@ final class ListenerRender extends ModuleListener<HUD, Render2DEvent> {
             }
         }
 
-        module.renderModules();
-        module.skeetLine();
         module.renderLogo();
+        module.renderModules();
         GL11.glPopMatrix();
-
-        if (module.reloadImages.getValue()) {
-            module.reloadImages.setValue(false);
-            Managers.FILES.init();
-            Managers.CHAT.sendDeleteMessage("Reloaded resources", "", ChatIDs.COMMAND);
-        } // it isn't very cool here but ok
-
     }
 
 }

@@ -9,11 +9,8 @@ public class ListenerRender extends ModuleListener<ChorusControl, WorldRenderEve
         super(module, WorldRenderEvent.class);
     }
 
-    public void invoke(WorldRenderEvent e)
+    public void invoke(WorldRenderEvent e) // Still a bit inspired from GS++?
     {
-        if(mc.player == null) return;
-        if(mc.world == null) return;
-
         if(module.cancelled)
             RenderUtil.drawBox(mc.player.getEntityBoundingBox(), module.espColor.getValue());
     }

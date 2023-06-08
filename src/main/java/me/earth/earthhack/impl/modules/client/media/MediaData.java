@@ -8,7 +8,6 @@ final class MediaData extends DefaultData<Media>
     {
         super(module);
         register("Replacement", "The name you want to appear with.");
-        register("Custom", "Changes the name of other players");
         register("Reload", "Use this in case you changed your" +
                 " name using an altmanager.");
         register(module.replaceCustom, "Renders custom names.");
